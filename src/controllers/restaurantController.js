@@ -60,3 +60,12 @@ export async function deleteRestaurant(req, res) {
     res.status(500).json({message: "Server Error"});
    }
 }
+export async function deleteAllRestaurants(req, res) {
+    try {
+        await Restaurant.deleteMany({});
+        res.json({message: "All restaurants deleted successfully"});
+    }catch (error) {
+        console.error("Error deleting all Restaurants:", error);
+        res.status(500).json({message: "Server Error"});
+    }
+}
