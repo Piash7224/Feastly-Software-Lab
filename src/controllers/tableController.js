@@ -1,4 +1,5 @@
 import Table from "../models/Table.js";
+import Booking from "../models/Booking.js";
 
 //create a table
 
@@ -45,6 +46,38 @@ export async function deleteTable(req, res) {
         res.json({message: "Table deleted successfully"});
     } catch (error) {
         console.error("Error deleting Table:", error);
+        res.status(500).json({message: "Server Error"});
+    }
+}
+
+export async function getAvailableTables(req, res) {
+    try {
+        const { restaurantId, date, timeSlot } = req.query;
+        if(!restaurantId || !date || !timeSlot) {
+            return res.status(400).json({message: "RestaurantId, date and timeslot are required"});
+        }
+        //find all tables for the restaurant
+        const allTables = await Table.find({ restaurant: restaurantId});
+
+        //find all bookings for the restaurant on the given date and timeslot
+        const queryDate = new Date(date);
+        const bookedTables = await Booking.find({restaurant: restaurantId, date:queryDate, timeSlot: timeSlot}).select('tableId');
+
+        //get booked table ids
+        const bookedTableIds = bookedTables
+             .map(booking => booking.tableId)
+             .filter(id => id) 
+             .map(id => id.toString());
+                                              
+        
+
+        //filter out booked tables
+        const availableTables = allTables.filter(table => !bookedTableIds.includes(table._id.toString()));
+        res.json(availableTables);
+
+
+    }catch (error) {
+        console.error("Error fetching available tables:", error);
         res.status(500).json({message: "Server Error"});
     }
 }
