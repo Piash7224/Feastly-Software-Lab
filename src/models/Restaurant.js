@@ -8,6 +8,7 @@ const restaurantSchema = new mongoose.Schema(
         location: { type: String},
         cuisine: { type: String },
         rating: { type: Number, default:  0 },
+        timeSlots: [{ type: String }],
     });
 
 const Restaurant = mongoose.model("Restaurant", restaurantSchema);

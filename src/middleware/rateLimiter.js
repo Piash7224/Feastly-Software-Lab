@@ -2,7 +2,8 @@ import ratelimit from "../config/ustash.js"
 const rateLimiter = async (req, res, next) => {
     //per user
     try{
-        const {success} = await ratelimit.limit("my-rate-limiter");
+        const ip = req.ip || req.headers["x-forwarded-for"] || "global"
+        const {success} = await ratelimit.limit("ip");
         if(!success){
             return res.status(429).json(
                 {message: "Too many requests, please try again later"})

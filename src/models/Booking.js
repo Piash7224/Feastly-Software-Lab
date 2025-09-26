@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
+
 const bookingSchema = new mongoose.Schema ({
     restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
-    table: {type: mongoose.Schema.Types.ObjectId, ref: 'Table', required: true },
+    tableId: {type: mongoose.Schema.Types.ObjectId, ref: 'Table', required: true },
     customerName: { type: String, required: true },
-    timeslot: { type: String, required: true },
+    date: { type: Date, required: true },
+    timeSlot: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
 });
 
