@@ -5,8 +5,21 @@ import Booking from "../models/Booking.js";
 
 export async function createTable (req, res) {
     try {
-        const table = await Table.create(req.body);
-        res.status(201).json(table);
+        const {restaurant, number, capacity, position, shape, size}= req.body;
+         const allowedShapes = ['circle', 'rectangle', 'square'];
+            if(shape && !allowedShapes.includes(shape)) {
+                return res.status(400).json({message: `Invalid shape. Allowed shapes are: ${allowedShapes.join(', ')}`});
+            }
+        const table = await Table.create({
+            restaurant,
+            number,
+            capacity,
+            position,
+            shape,
+            size
+        });
+       
+        res.status (201).json(table);
     }catch (error) {
         console.error("Error creating Table:", error);
         res.status(500).json({message: "Server Error"});
@@ -44,7 +57,19 @@ export async function getAllTables(req, res) {
 
 export async function updateTable(req, res) {
     try{
-        const table = await Table.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        const{number, capacity, position, shape, size}= req.body;
+        const allowedShapes = ['circle', 'rectangle', 'square'];
+        if(shape && !allowedShapes.includes(shape)) {
+            return res.status(400).json({message: `Invalid shape. Allowed shapes are: ${allowedShapes.join(', ')}`});
+        }
+        const table = await Table.findByIdAndUpdate(req.params.id, {
+            number,
+            capacity,
+            position,
+            shape,
+            size
+        }, {new: true});
+      
         if(!table) return res.status(404).json({message: "Table not found"});
         res.json(table);
     }catch (error) {

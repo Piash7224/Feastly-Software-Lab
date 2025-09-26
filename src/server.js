@@ -3,6 +3,7 @@ import restaurantRoutes from "./routes/restaurantRoutes.js"
 import tableRoutes from "./routes/tableRoutes.js"
 import bookingRoutes from "./routes/bookingRoutes.js"
 import waitlistRoutes from "./routes/waitlistRoutes.js"
+import foodRoutes from "./routes/foodRoutes.js"
 import { connectDB } from "./config/db.js"
 import dotenv from "dotenv"
 import rateLimiter from "./middleware/rateLimiter.js"
@@ -22,6 +23,7 @@ app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/tables", tableRoutes); 
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/waitlist", waitlistRoutes);
+app.use("/api/foods", foodRoutes);
 
 
 //optional global error handling middleware
