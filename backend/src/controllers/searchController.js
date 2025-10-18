@@ -1,33 +1,44 @@
 import Restaurant from "../models/Restaurant.js";
 import Food from "../models/Food.js";
 
-//search restaurnts by name, location and with food ites
+// Search restaurants by name, location, cuisine, and food items
 export async function search(req, res) {
     try {
         const { query } = req.query;
-        if(!query) {
-            return res.status(400).json({message: "Query parameter is required"});
 
+        if (!query) {
+            return res.status(400).json({ message: "Query parameter is required" });
         }
-        //search resaturants by name and location
+
+        const regex = new RegExp(query, "i"); // case-insensitive partial match
+
+        // Search restaurants by name, location, or cuisine
         const restaurantMatches = await Restaurant.find({
             $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { location: { $regex: query, $options: 'i' } },
-                { cuisine: { $regex: query, $options: 'i' }  }
+                { name: regex },
+                { location: regex },
+                { cuisine: regex }
             ]
-        });
+        }).limit(10); // Limit to top 10 results for performance
 
-        //search food items and connect it with restaurants
-        const foodMatches = await Food.find({ name: { $regex: query, $options: 'i' } }).populate('restaurant');
-        const restaurantsFromFood = foodMatches.map(food => food.restaurant);
+        // Search food items and connect them to restaurants
+        const foodMatches = await Food.find({ name: regex })
+            .populate("restaurant")
+            .limit(10);
 
-        //combine to avoid duplicates
+        const restaurantsFromFood = foodMatches
+            .map(food => food.restaurant)
+            .filter(Boolean);
+
+        // Combine results without duplicates
         const allMatches = [...restaurantMatches, ...restaurantsFromFood];
-        const uniqueRestaurants = Array.from(new Map(allMatches.map(item => [item._id.toString(), item])).values());
+        const uniqueRestaurants = Array.from(
+            new Map(allMatches.map(item => [item._id.toString(), item]))
+        ).map(([_, value]) => value);
+
         res.json(uniqueRestaurants);
-    }catch (error) {
+    } catch (error) {
         console.error("Error during search:", error);
-        res.status(500).json({message: "Server Error"});
+        res.status(500).json({ message: "Server Error" });
     }
 }
