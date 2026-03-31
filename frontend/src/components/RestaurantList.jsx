@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 
 export default function RestaurantList() {
   const [restaurants, setRestaurants] = useState([]);
@@ -8,7 +8,7 @@ export default function RestaurantList() {
 
   const fetchRestaurants = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/restaurants");
+      const res = await axiosInstance.get("/restaurants");
       setRestaurants(res.data);
     } catch (error) {
       console.error("Error fetching restaurants:", error);
@@ -23,7 +23,7 @@ export default function RestaurantList() {
     if (!window.confirm("Are you sure you want to delete this restaurant?")) return;
 
     try {
-      await axios.delete(`/api/restaurants/${id}`);
+      await axiosInstance.delete(`/restaurants/${id}`);
       setRestaurants(restaurants.filter((r) => r._id !== id));
     } catch (error) {
       console.error("Error deleting restaurant:", error);

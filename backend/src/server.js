@@ -22,6 +22,7 @@ import Restaurant from "./models/Restaurant.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 5001;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const app = express();
 
@@ -37,9 +38,10 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // ======= Middleware =======
+app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json());
 app.use(rateLimiter);
-app.use(cors({ origin: "http://localhost:5173" }));
+
 
 // ======= Serve uploaded images statically =======
 app.use("/uploads", express.static(uploadsDir));

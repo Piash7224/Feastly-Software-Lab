@@ -21,8 +21,8 @@ export default function MenuCard({ foodItems, preOrders, onPreOrderChange }) {
     <div className="menu-card-container p-6 bg-white rounded-xl shadow-lg">
       <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Our Menu</h2>
 
-      {foodCategories.map((category) => (
-        <div key={category} className="mb-10">
+      {foodCategories.map((category, idx) => (
+        <div key={category || `category-${idx}`} className="mb-10">
           <h3 className="text-2xl font-semibold text-gray-700 mb-6 border-b-2 border-orange-400 pb-2">
             {category}
           </h3>
@@ -70,6 +70,7 @@ export default function MenuCard({ foodItems, preOrders, onPreOrderChange }) {
                       <AnimatePresence>
                         {selectedFood?._id === food._id && showQuantity && (
                           <motion.div
+                            key={`quantity-${food._id}`}
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
@@ -86,7 +87,7 @@ export default function MenuCard({ foodItems, preOrders, onPreOrderChange }) {
                                 -
                               </button>
 
-                              <span className="w-8 text-center">{quantity}</span>
+                              <span className="w-8 text-center text-black">{quantity}</span>
 
                               <button
                                 onClick={(e) => {

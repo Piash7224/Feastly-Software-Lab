@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 
 export default function TableBooking() {
   const [tables, setTables] = useState([]);
@@ -23,7 +23,7 @@ export default function TableBooking() {
 
   const fetchTables = async () => {
     try {
-      const res = await axios.get("/api/tables");
+      const res = await axiosInstance.get("/tables");
       setTables(res.data);
     } catch (error) {
       console.error("Error fetching tables:", error);
@@ -32,7 +32,7 @@ export default function TableBooking() {
 
   const fetchBookings = async () => {
     try {
-      const res = await axios.get("/api/bookings");
+      const res = await axiosInstance.get("/bookings");
       setBookings(res.data);
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -47,7 +47,7 @@ export default function TableBooking() {
     if (!selectedTable) return;
 
     try {
-      await axios.post("/api/bookings", {
+      await axiosInstance.post("/bookings", {
         tableId: selectedTable,
         people: peopleCount,
       });

@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import RestaurantForm from "../components/RestaurantForm";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 
 export default function AddRestaurant() {
   const navigate = useNavigate();
@@ -16,13 +16,12 @@ export default function AddRestaurant() {
         return;
       }
 
-      const res = await axios.post(
-        "http://localhost:5001/api/restaurants",
+      const res = await axiosInstance.post(
+        "/restaurants",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`, // attach token here
           },
         }
       );
@@ -41,11 +40,11 @@ export default function AddRestaurant() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-gray-100"
+      className="min-h-screen flex items-center justify-center bg-gray-200 "
       style={{ background: "#d1d3d8" }}
     >
       <div
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8"
+        className="w-full max-w-md bg-blue-950 rounded-2xl shadow-xl p-8"
         style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}
       >
         <div className="flex flex-col items-center mb-6">

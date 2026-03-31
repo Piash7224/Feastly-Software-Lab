@@ -120,7 +120,6 @@ export default function Home() {
           ))}
         </motion.div>
 
-        {/* CTA Button */}
         
       </motion.div>
     </div>

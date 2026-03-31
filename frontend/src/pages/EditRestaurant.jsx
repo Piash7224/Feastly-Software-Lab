@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 import RestaurantForm from "../components/RestaurantForm";
 
 export default function EditRestaurant() {
@@ -11,7 +11,7 @@ export default function EditRestaurant() {
   useEffect(() => {
     const fetchRestaurant = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/restaurants/${id}`);
+        const res = await axiosInstance.get(`/restaurants/${id}`);
         setRestaurant(res.data);
       } catch (error) {
         console.error("Error fetching restaurant:", error);
@@ -23,8 +23,8 @@ export default function EditRestaurant() {
 
   const handleUpdateRestaurant = async (formData) => {
     try {
-      const res = await axios.put(
-        `/api/restaurants/${id}`,
+      const res = await axiosInstance.put(
+        `/restaurants/${id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

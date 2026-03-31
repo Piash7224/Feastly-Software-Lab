@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 
 export default function DashboardStats({ restaurantId }) {
   const [stats, setStats] = useState({
@@ -25,8 +25,8 @@ export default function DashboardStats({ restaurantId }) {
 
         // Fetch bookings and waitlist
         const [bookingsRes, waitlistRes] = await Promise.all([
-          axios.get(`/api/bookings?restaurantId=${restaurantId}`, config),
-          axios.get(`/api/waitlist?restaurantId=${restaurantId}`, config),
+          axiosInstance.get(`/bookings?restaurantId=${restaurantId}`),
+          axiosInstance.get(`/waitlist?restaurantId=${restaurantId}`),
         ]);
 
         const bookings = bookingsRes.data || [];

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, CircularProgress, Grid, Button, TextField, Alert } from "@mui/material";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance.js";
 
 export default function WaitlistManagement() {
   const [restaurants, setRestaurants] = useState([]);
@@ -10,16 +10,15 @@ export default function WaitlistManagement() {
   const [error, setError] = useState("");
 
   const token = localStorage.getItem("token");
-  const config = { headers: { Authorization: `Bearer ${token}` } };
 
   const fetchRestaurants = async () => {
-    const { data } = await axios.get("/api/admin/restaurants", config);
+    const { data } = await axiosInstance.get("/admin/restaurants");
     return Array.isArray(data) ? data : (Array.isArray(data.restaurants) ? data.restaurants : []);
   };
 
   const fetchWaitlist = async (restaurantId) => {
     const qs = date ? `?date=${encodeURIComponent(date)}` : "";
-    const { data } = await axios.get(`/api/admin/waitlist/${restaurantId}${qs}`, config);
+    const { data } = await axiosInstance.get(`/admin/waitlist/${restaurantId}${qs}`);
     return Array.isArray(data) ? data : [];
   };
 
@@ -71,7 +70,7 @@ export default function WaitlistManagement() {
           <Typography variant="h6">{rest.name}</Typography>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             {(waitlistByRestaurant[rest._id] || []).map(w => (
-              <Grid xs={12} md={6} key={w._id}>
+              <Grid size={{ xs: 12, md: 6 }} key={w._id}>
                 <Paper sx={{ p: 2 }}>
                   <Typography>{w.customerName}</Typography>
                   <Typography>Date: {new Date(w.date).toLocaleDateString()}</Typography>

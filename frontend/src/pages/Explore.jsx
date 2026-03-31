@@ -170,7 +170,7 @@ export default function Explore() {
     fetchRestaurants(query, nextPage);
   };
 
-  const locations = ["All", "Mirpur", "Shewrapara", "Mohakhali", "Banani", "Gulshan-1", "Gulshan-2", "Badda"];
+  const locations = ["All", "Mirpur", "Bashundhara", "Mohakhali", "Banani", "Gulshan", "Khilgaon", "Baily Road"];
   const [selectedLocation, setSelectedLocation] = useState("All");
 
   return (
@@ -251,7 +251,8 @@ export default function Explore() {
         </div>
 
         {/* Restaurant Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
+
           {loading && page === 1 ? (
             <div className="col-span-full text-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>

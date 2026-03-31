@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 import toast from "react-hot-toast";
 
 export default function Login() {
@@ -36,7 +36,7 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const { data } = await axios.post("/api/login", {
+      const { data } = await axiosInstance.post("/login", {
         email: email.trim().toLowerCase(),
         password,
       });

@@ -10,7 +10,7 @@ import {
   ToggleButton,
   Alert,
 } from "@mui/material";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance.js";
 
 export default function RestaurantManagement() {
   const [restaurants, setRestaurants] = useState([]);
@@ -21,10 +21,8 @@ export default function RestaurantManagement() {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
       const qs = status && status !== "all" ? `?status=${status}` : "";
-      const { data } = await axios.get(`/api/admin/restaurants${qs}`, config);
+      const { data } = await axiosInstance.get(`/admin/restaurants${qs}`);
       setRestaurants(
         Array.isArray(data) ? data : Array.isArray(data.restaurants) ? data.restaurants : []
       );
@@ -43,9 +41,7 @@ export default function RestaurantManagement() {
 
   const handleAction = async (id, action) => {
     try {
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.patch(`/api/admin/restaurants/${id}`, { action }, config);
+      await axiosInstance.patch(`/admin/restaurants/${id}`, { action });
       fetchRestaurants();
     } catch (err) {
       console.error(err);
@@ -97,7 +93,7 @@ export default function RestaurantManagement() {
 
       <Grid container spacing={3}>
         {restaurants.map((rest) => (
-          <Grid xs={12} md={6} lg={4} key={rest._id}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }} key={rest._id}>
             <Paper sx={{ p: 2 }}>
               {/* ✅ Restaurant Image */}
               {rest.image ? (

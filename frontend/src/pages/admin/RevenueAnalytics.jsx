@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, CircularProgress, Button } from "@mui/material";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance.js";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export default function RevenueAnalytics() {
@@ -12,14 +12,14 @@ export default function RevenueAnalytics() {
       setLoading(true);
       const token = localStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.get("/api/admin/restaurants", config);
+      const { data } = await axiosInstance.get("/admin/restaurants");
       // Only include approved restaurants for revenue
       const rawList = Array.isArray(data) ? data : (Array.isArray(data.restaurants) ? data.restaurants : []);
       const list = rawList.filter(r => r.status === "approved");
       // For each restaurant fetch preorder revenue
       const withRevenue = await Promise.all(list.map(async (rest) => {
         try {
-          const { data: rev } = await axios.get(`/api/admin/revenue/${rest._id}/preorders`, config);
+          const { data: rev } = await axiosInstance.get(`/admin/revenue/${rest._id}/preorders`);
           return { ...rest, revenueSeries: rev };
         } catch {
           return { ...rest, revenueSeries: [] };

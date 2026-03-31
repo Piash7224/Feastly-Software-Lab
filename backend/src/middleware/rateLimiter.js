@@ -1,4 +1,4 @@
-import ratelimit from "../config/ustash.js"
+/*import ratelimit from "../config/ustash.js"
 const rateLimiter = async (req, res, next) => {
     //per user
     try{
@@ -18,4 +18,6 @@ const rateLimiter = async (req, res, next) => {
 
 }
 
+export default rateLimiter;*/
+const rateLimiter = (req, res, next) => next();
 export default rateLimiter;

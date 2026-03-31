@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Paper, Grid, Card, CardMedia, CardContent, Box, TextField, MenuItem, CircularProgress } from "@mui/material";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 
 export default function Food() {
   const [restaurants, setRestaurants] = useState([]);
@@ -8,12 +8,9 @@ export default function Food() {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem("token");
-  const auth = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-
   const loadRestaurants = async () => {
     try {
-      const { data } = await axios.get("/api/restaurants", auth);
+      const { data } = await axiosInstance.get("/restaurants");
       // Support both array and {restaurants: []}
       const list = Array.isArray(data) ? data : (Array.isArray(data.restaurants) ? data.restaurants : []);
       setRestaurants(list.filter(r => r.status === "approved" || !r.status));
@@ -27,7 +24,7 @@ export default function Food() {
     if (!restaurantId) return;
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/foods/restaurant/${restaurantId}`);
+      const { data } = await axiosInstance.get(`/foods/restaurant/${restaurantId}`);
       setFoods(Array.isArray(data) ? data : []);
     } catch {
       setFoods([]);

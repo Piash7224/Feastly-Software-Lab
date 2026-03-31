@@ -65,6 +65,7 @@ export async function createWaitlistEntry({
   requestedStartTime,
   requestedEndTime,
   partySize,
+  userId,
   estimatedAvailableTime = null,
 }) {
   const queryDate = new Date(date);
@@ -115,6 +116,11 @@ export async function createWaitlistEntry({
   }
 
   tableAvailability.sort((a, b) => {
+    // Handle null availableAt values
+    if (a.availableAt === null && b.availableAt === null) return 0;
+    if (a.availableAt === null) return 1;
+    if (b.availableAt === null) return -1;
+    
     if (a.availableAt.getTime() === b.availableAt.getTime()) {
       return a.capacity - b.capacity;
     }
@@ -134,6 +140,7 @@ export async function createWaitlistEntry({
   const entry = await Waitlist.create({
     restaurant,
     customerName,
+    userId, // Add userId
     date: queryDate,
     requestedStartTime,
     requestedEndTime,
@@ -201,6 +208,11 @@ export async function checkWaitlistAvailability(req, res) {
     }
 
     tableAvailability.sort((a, b) => {
+      // Handle null availableAt values
+      if (a.availableAt === null && b.availableAt === null) return 0;
+      if (a.availableAt === null) return 1;
+      if (b.availableAt === null) return -1;
+      
       if (a.availableAt.getTime() === b.availableAt.getTime()) {
         return a.capacity - b.capacity;
       }
@@ -243,7 +255,7 @@ export async function autoSeatWaitlist(restaurantId) {
   return waitingEntries.length;
 }
 
-// FIFO Processor: Auto-assign table from waitlist
+// FIFO Processor: Auto-assign table from waitlist with smart party-size matching
 export async function processWaitlistForTable(restaurantId) {
   if (!restaurantId) return null;
 
@@ -269,46 +281,75 @@ export async function processWaitlistForTable(restaurantId) {
     return acc;
   }, {});
 
+  // Process each waitlist entry in order
   for (const entry of waitlistEntries) {
     const { date, requestedStartTime, requestedEndTime, partySize } = entry;
     const queryDate = new Date(date);
     queryDate.setHours(0, 0, 0, 0);
 
-    const allTables = await Table.find({
-      restaurant: restaurantId,
-      capacity: { $gte: partySize },
-    }).sort({ capacity: 1 }).lean();
+    // Get all tables
+    const allTables = await Table.find({ restaurant: restaurantId }).lean();
 
     const openingTime = new Date(queryDate);
     openingTime.setHours(10, 0, 0, 0);
     const closingTime = new Date(queryDate);
     closingTime.setHours(22, 0, 0, 0);
 
+    // First, try to find an exact match for party size
+    let bestTable = null;
     for (const table of allTables) {
-      const freePeriods = calculateFreePeriods(bookingsByTable[table._id] || [], openingTime, closingTime);
-
-      if (isTableAvailableForPeriod(freePeriods, requestedStartTime, requestedEndTime)) {
-        const booking = await Booking.create({
-          restaurant: restaurantId,
-          tableId: table._id,
-          customerName: entry.customerName,
-          date: queryDate,
-          startTime: new Date(requestedStartTime),
-          endTime: new Date(requestedEndTime),
-          partySize,
-        });
-
-        await Waitlist.findByIdAndUpdate(entry._id, {
-          status: "booked",
-          estimatedAvailableTime: new Date(requestedStartTime),
-        });
-
-        console.log(
-          ` Waitlist entry auto-booked: ${entry.customerName} → Table ${table.tableNumber || table._id}`
-        );
-
-        return booking;
+      if (table.capacity === partySize) {
+        const freePeriods = calculateFreePeriods(bookingsByTable[table._id] || [], openingTime, closingTime);
+        if (isTableAvailableForPeriod(freePeriods, requestedStartTime, requestedEndTime)) {
+          bestTable = table;
+          break; // Take the first exact match
+        }
       }
+    }
+
+    // If no exact match, try party-size + 1
+    if (!bestTable) {
+      for (const table of allTables.sort((a, b) => a.capacity - b.capacity)) {
+        if (table.capacity === partySize + 1) {
+          const freePeriods = calculateFreePeriods(bookingsByTable[table._id] || [], openingTime, closingTime);
+          if (isTableAvailableForPeriod(freePeriods, requestedStartTime, requestedEndTime)) {
+            bestTable = table;
+            break; // Take the first party-size+1 match
+          }
+        }
+      }
+    }
+
+    // If a suitable table is found, assign it
+    if (bestTable) {
+      const booking = await Booking.create({
+        restaurant: restaurantId,
+        tableId: bestTable._id,
+        customerName: entry.customerName,
+        userId: entry.userId, // Include userId from waitlist entry
+        date: queryDate,
+        startTime: new Date(requestedStartTime),
+        endTime: new Date(requestedEndTime),
+        partySize,
+      });
+
+      await Waitlist.findByIdAndUpdate(entry._id, {
+        status: "booked",
+        estimatedAvailableTime: new Date(requestedStartTime),
+      });
+
+      console.log(
+        `✅ Waitlist entry auto-booked: ${entry.customerName} → Table ${bestTable.tableNumber || bestTable._id}`
+      );
+
+      // Update bookingsByTable for this table so we don't assign the same table again
+      bookingsByTable[bestTable._id] = bookingsByTable[bestTable._id] || [];
+      bookingsByTable[bestTable._id].push({
+        startTime: requestedStartTime,
+        endTime: requestedEndTime,
+      });
+
+      return booking;
     }
   }
 
@@ -331,6 +372,7 @@ export async function addToWaitlist(req, res) {
       requestedStartTime: new Date(requestedStartTime),
       requestedEndTime: new Date(requestedEndTime),
       partySize,
+      userId: req.user?.id, // Pass userId from auth
     });
 
     const restaurantId = typeof restaurant === "object" && restaurant._id ? restaurant._id : restaurant;

@@ -214,6 +214,7 @@ export async function createBooking(req, res) {
         restaurant,
         tableId: chosenTable._id,
         customerName,
+        userId: req.user.id, // Add userId
         date: queryDate,
         startTime: requestedStart,
         endTime: chosenEnd,

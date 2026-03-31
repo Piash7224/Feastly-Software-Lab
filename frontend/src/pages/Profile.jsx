@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 import toast from "react-hot-toast";
 
 export default function Profile() {
@@ -17,10 +17,8 @@ export default function Profile() {
       return;
     }
 
-    axios
-      .get("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    axiosInstance
+      .get("/profile")
       .then((res) => setProfile(res.data))
       .catch(() => {
         toast.error("Please login");
@@ -68,9 +66,7 @@ export default function Profile() {
     if (password) payload.password = password;
 
     try {
-      const { data } = await axios.put("/api/profile", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axiosInstance.put("/profile", payload);
       setProfile(data.user);
       localStorage.setItem("name", data.user.name);
       toast.success("Profile updated successfully");

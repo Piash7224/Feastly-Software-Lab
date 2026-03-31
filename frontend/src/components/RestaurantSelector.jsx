@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 
 export default function RestaurantSelector({ onSelect }) {
   const [restaurants, setRestaurants] = useState([]);
@@ -7,7 +7,7 @@ export default function RestaurantSelector({ onSelect }) {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const { data } = await axios.get("/api/restaurants");
+        const { data } = await axiosInstance.get("/restaurants");
         setRestaurants(data);
       } catch (error) {
         console.error("Error fetching restaurants:", error);

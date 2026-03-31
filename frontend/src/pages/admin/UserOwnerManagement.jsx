@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, Button, CircularProgress, Grid } from "@mui/material";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance.js";
 
 export default function UserOwnerManagement() {
   const [users, setUsers] = useState([]);
@@ -9,9 +9,7 @@ export default function UserOwnerManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.get("/api/admin/users", config);
+      const { data } = await axiosInstance.get("/admin/users");
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) { setUsers([]); }
     finally { setLoading(false); }
@@ -23,7 +21,7 @@ export default function UserOwnerManagement() {
     try {
       const token = localStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.patch(`/api/admin/users/${id}/status`, { isBlocked: !isBlocked }, config);
+      await axiosInstance.patch(`/admin/users/${id}/status`, { isBlocked: !isBlocked });
       fetchUsers();
     } catch (err) { console.error(err); }
   };
@@ -35,7 +33,7 @@ export default function UserOwnerManagement() {
       <Typography variant="h4" gutterBottom>User / Owner Management</Typography>
       <Grid container spacing={3}>
         {users.map(u => (
-          <Grid xs={12} md={6} lg={4} key={u._id}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }} key={u._id}>
             <Paper sx={{ p: 2 }}>
               <Typography>{u.name} ({u.role})</Typography>
               <Typography>Email: {u.email}</Typography>

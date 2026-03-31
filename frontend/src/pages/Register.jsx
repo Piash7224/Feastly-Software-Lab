@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 import toast from "react-hot-toast";
 
 export default function Register() {
@@ -55,7 +55,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const { data } = await axios.post("/api/register", {
+      const { data } = await axiosInstance.post("/register", {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,

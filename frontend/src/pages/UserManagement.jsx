@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance.js";
 import toast from "react-hot-toast";
 
 const UserManagement = () => {
@@ -21,9 +21,7 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/api/admin/users", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axiosInstance.get("/admin/users");
       setUsers(data);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to fetch users");
@@ -34,9 +32,7 @@ const UserManagement = () => {
 
   const toggleBlock = async (id, isBlocked) => {
     try {
-      await axios.patch(`/api/admin/users/${id}/status`, { isBlocked: !isBlocked }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axiosInstance.patch(`/admin/users/${id}/status`, { isBlocked: !isBlocked });
       fetchUsers();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update user status");
@@ -46,9 +42,7 @@ const UserManagement = () => {
   const deleteHandler = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await axios.delete(`/api/admin/users/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axiosInstance.delete(`/admin/users/${id}`);
         toast.success("User deleted successfully");
         fetchUsers(); // Refresh list
       } catch (err) {

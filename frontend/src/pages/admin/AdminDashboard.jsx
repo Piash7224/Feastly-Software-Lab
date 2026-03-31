@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, Button, CircularProgress, Grid, Alert } from "@mui/material";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, Legend } from "recharts";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance.js";
 
 export default function AdminDashboard() {
   const [restaurants, setRestaurants] = useState([]);
@@ -14,11 +14,9 @@ export default function AdminDashboard() {
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data: restaurantsArray } = await axios.get("/api/admin/restaurants?status=pending&limit=6", config);
-      const { data: daily } = await axios.get("/api/admin/revenue/global/daily", config);
-      const { data: monthly } = await axios.get("/api/admin/revenue/global/monthly", config);
+      const { data: restaurantsArray } = await axiosInstance.get("/admin/restaurants?status=pending&limit=6");
+      const { data: daily } = await axiosInstance.get("/admin/revenue/global/daily");
+      const { data: monthly } = await axiosInstance.get("/admin/revenue/global/monthly");
 
       const statsPromises = restaurantsArray.map(async (rest) => ({ ...rest }));
       const restaurantsWithStats = await Promise.all(statsPromises);
@@ -42,7 +40,7 @@ export default function AdminDashboard() {
     try {
       const token = localStorage.getItem("token");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      await axios.patch(`/api/admin/restaurants/${id}`, { action }, config);
+      await axiosInstance.patch(`/admin/restaurants/${id}`, { action });
       fetchRestaurants();
     } catch (err) {
       console.error(`Failed to ${action} restaurant`, err);
@@ -71,7 +69,7 @@ export default function AdminDashboard() {
 
       {/* KPI Cards */}
       <Grid container spacing={3} sx={{ mb: 2 }}>
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 2 }}>
             <Typography color="text.secondary" fontSize={14}>Today Revenue</Typography>
             <Typography variant="h5" fontWeight={700}>
@@ -79,7 +77,7 @@ export default function AdminDashboard() {
             </Typography>
           </Paper>
         </Grid>
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 2 }}>
             <Typography color="text.secondary" fontSize={14}>This Month Revenue</Typography>
             <Typography variant="h5" fontWeight={700}>
@@ -87,7 +85,7 @@ export default function AdminDashboard() {
             </Typography>
           </Paper>
         </Grid>
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 2, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <div>
               <Typography color="text.secondary" fontSize={14}>Pending Requests</Typography>
@@ -100,7 +98,7 @@ export default function AdminDashboard() {
 
       {/* Global Revenue Charts */}
       <Grid container spacing={3} sx={{ mb: 2 }}>
-        <Grid xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2, height: 340 }}>
             <Typography variant="h6">Daily Revenue (All Restaurants)</Typography>
             <Box sx={{ height: 280 }}>
@@ -145,7 +143,7 @@ export default function AdminDashboard() {
           </Grid>
         )}
         {restaurants.map((rest) => (
-          <Grid xs={12} md={6} lg={4} key={rest._id}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }} key={rest._id}>
             <Paper sx={{ p: 2 }}>
               {/* Restaurant Image */}
               {rest.imageUrl ? (

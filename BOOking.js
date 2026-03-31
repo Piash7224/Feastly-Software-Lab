@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "./frontend/src/api/axiosInstance.js";
 
 export default function Booking() {
     const { restaurantId } = useParams();
@@ -21,8 +21,8 @@ export default function Booking() {
     useEffect(() => {
         const fetchRestaurant = async () => {
             try {
-                const res = await axios.get(
-                    `http://localhost:5001/api/restaurants/${restaurantId}`
+                const res = await axiosInstance.get(
+                    `/restaurants/${restaurantId}`
                 );
                 setRestaurant(res.data);
             } catch (err) {
@@ -39,8 +39,8 @@ export default function Booking() {
 
     const fetchTableAvailability = async () => {
         try {
-            const res = await axios.get(
-                `http://localhost:5001/api/bookings/restaurant/${restaurantId}?date=${bookingDate}`
+            const res = await axiosInstance.get(
+                `/bookings/restaurant/${restaurantId}?date=${bookingDate}`
             );
             setTableAvailability(res.data?.tables || []);
         } catch (err) {
@@ -112,7 +112,7 @@ export default function Booking() {
         setLoading(true);
 
         try {
-            const res = await axios.post("http://localhost:5001/api/bookings", {
+            const res = await axiosInstance.post("/bookings", {
                 restaurant: restaurantId,
                 customerName,
                 date: bookingDate,
@@ -144,7 +144,7 @@ export default function Booking() {
         }
         try {
             setLoading(true);
-            await axios.post("http://localhost:5001/api/waitlist", {
+            await axiosInstance.post("/waitlist", {
                 restaurant: restaurantId,
                 customerName,
                 date: bookingDate,
